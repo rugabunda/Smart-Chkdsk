@@ -6,7 +6,6 @@
     Scans all local drives for errors and schedules appropriate repairs:
     - System and pagefile drives: Repair scheduled for next system restart & Notification
     - Data drives: Repair scheduled during system idle time via run once, self-removing tasks
-    - Uses non-interactive flags to minimize user intervention
 
 .NOTES
     Requires: Administrator privileges
