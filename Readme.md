@@ -19,9 +19,7 @@
 
 ## Usage
 
-1. Run `Smart-Chkdsk.ps1` as Administrator / Schedualed Task
-2. Follow on-screen prompts and notifications.
-3. Restart your computer if prompted for system drive repairs.
+Run `Smart-Chkdsk.ps1` as Administrator / Schedualed Task
 
 ## Notes
 
