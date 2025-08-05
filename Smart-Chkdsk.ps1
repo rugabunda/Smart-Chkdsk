@@ -9,7 +9,6 @@
     - Uses non-interactive flags to minimize user intervention
 
 .NOTES
-    Version: 4.0
     Requires: Administrator privileges
 #>
 
