@@ -47,6 +47,13 @@ function Get-DrivesThatRequireReboot {
     return $rebootDrives
 }
 
+function Test-VolumeDirtyBit {
+    param([string]$DriveLetter)
+    
+    $result = fsutil dirty query $DriveLetter 2>&1
+    return ($result -match "is Dirty|is set")
+}
+
 function New-SelfDestructingChkdskTask {
     param(
         [string]$DriveLetter,
@@ -114,6 +121,12 @@ try {
         Write-Host "------------------------------------------------------------"
         Write-Host "Scanning drive $driveLetter" -ForegroundColor Yellow
         
+        # Check if dirty bit is set (repair already scheduled)
+        if (Test-VolumeDirtyBit -DriveLetter $driveLetter) {
+            Write-Host "-> Drive ${driveLetter}: Repair already scheduled (dirty bit set)" -ForegroundColor Yellow
+            continue
+        }
+        
         # Run read-only scan
         chkdsk $driveLetter | Out-Null
         $exitCode = $LASTEXITCODE
@@ -129,7 +142,13 @@ try {
             if ($driveLetter -in $rebootRequiredDrives) {
                 # System/swap drives require restart-based repair
                 Write-Host "-> Scheduling restart-based repair for $driveLetter" -ForegroundColor Magenta
+                
+                # Schedule the repair
                 echo 'Y' | chkdsk $driveLetter /f | Out-Null
+                
+                # Manually set dirty bit to prevent future popups
+                fsutil dirty set $driveLetter | Out-Null
+                
                 Write-Host "-> Repair scheduled for next system restart" -ForegroundColor Green
                 $drivesScheduledForReboot += $driveLetter
             }
@@ -145,6 +164,7 @@ try {
                     # Fallback to restart-based repair
                     Write-Host "-> Fallback: Scheduling restart-based repair" -ForegroundColor Yellow
                     echo 'Y' | chkdsk $driveLetter /f | Out-Null
+                    fsutil dirty set $driveLetter | Out-Null
                     $drivesScheduledForReboot += $driveLetter
                     $failedScheduling += $driveLetter
                 }
