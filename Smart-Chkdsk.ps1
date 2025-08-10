@@ -146,7 +146,10 @@ try {
                 # Schedule the repair
                 echo 'Y' | chkdsk $driveLetter /f | Out-Null
                 
-                # Manually set dirty bit to prevent future popups
+                # CRITICAL: Ensure Windows will actually run chkdsk at boot
+                & chkntfs /c $driveLetter | Out-Null
+                
+                # Set dirty bit to prevent future popups
                 fsutil dirty set $driveLetter | Out-Null
                 
                 Write-Host "-> Repair scheduled for next system restart" -ForegroundColor Green
@@ -164,6 +167,7 @@ try {
                     # Fallback to restart-based repair
                     Write-Host "-> Fallback: Scheduling restart-based repair" -ForegroundColor Yellow
                     echo 'Y' | chkdsk $driveLetter /f | Out-Null
+                    & chkntfs /c $driveLetter | Out-Null
                     fsutil dirty set $driveLetter | Out-Null
                     $drivesScheduledForReboot += $driveLetter
                     $failedScheduling += $driveLetter
