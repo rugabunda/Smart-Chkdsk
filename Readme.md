@@ -25,6 +25,7 @@ Run `Smart-Chkdsk.ps1` as Administrator / Schedualed Task
 
 - Idle-time repairs require the system to be idle for at least 10 minutes.
 - All actions and results are displayed in the terminal and via notifications.
+- Not for mission critical environments where dismounting could cause data loss.
 
 ---
 
